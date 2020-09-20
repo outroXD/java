@@ -6,7 +6,7 @@ public enum ChapterEnum {
 
     private int chapter;
 
-    private ChapterEnum(int chapter) {
+    ChapterEnum(int chapter) {
         this.chapter = chapter;
     }
 }
