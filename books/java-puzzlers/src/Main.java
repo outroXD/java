@@ -1,13 +1,15 @@
 import chap2.*;
+import common.ChapterEnum;
 import common.IPuzzle;
+import common.PuzzlesFactory;
+
+import java.util.ArrayList;
 
 public class Main {
-    private final static IPuzzle[] puzzles = {
-            new Puzzle1(), new Puzzle2(), new Puzzle3(), new Puzzle4(), new Puzzle5(),
-            new Puzzle6(), new Puzzle7(), new Puzzle8(),
-    };
+    private static final ChapterEnum targetChap = ChapterEnum.ChapTwo;
 
     public static void main(String[] args) {
+        ArrayList<IPuzzle> puzzles = new PuzzlesFactory().getPuzzles(targetChap);
         for (IPuzzle puzzle : puzzles) {
             puzzle.exec();
         }
