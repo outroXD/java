@@ -11,12 +11,12 @@ public class Puzzle2 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         System.out.println(2.00 - 1.10);
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         System.out.println(200 - 110 + "cents");
         System.out.println(new BigDecimal("2.00").subtract(new BigDecimal("1.10")));
     }

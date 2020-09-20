@@ -11,9 +11,9 @@ public abstract class AbstractPuzzle implements IPuzzle {
     @Override
     public void exec() {
         System.out.println(this.className + " " + "Example case.");
-        this.getExample();
+        this.showExample();
         System.out.println(this.className + " " + "Correct case.");
-        this.getCorrect();
+        this.showCorrect();
         System.out.println();
     }
 }

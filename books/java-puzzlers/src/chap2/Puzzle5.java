@@ -9,12 +9,12 @@ public class Puzzle5 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         System.out.println(Long.toHexString(0x100000000L + 0xcafebabe));
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         System.out.println(Long.toHexString(0x100000000L + 0xcafebabeL));
     }
 }

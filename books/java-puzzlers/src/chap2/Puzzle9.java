@@ -9,11 +9,11 @@ public class Puzzle9 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         short x = 0;
         int i = 123456;
         System.out.println("x:" + x);

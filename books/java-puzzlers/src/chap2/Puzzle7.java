@@ -9,7 +9,7 @@ public class Puzzle7 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         int x = 1984;
         int y = 2001;
         x ^= y ^= x ^= y;
@@ -17,7 +17,7 @@ public class Puzzle7 extends AbstractPuzzle {
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         int x = 1984;
         int y = 2001;
         int tmp;

@@ -9,7 +9,7 @@ public class Puzzle1 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         System.out.println(isOdd(1));
         System.out.println(isOdd(2));
         System.out.println(isOdd(3));
@@ -22,7 +22,7 @@ public class Puzzle1 extends AbstractPuzzle {
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         System.out.println(isOddCorrect(1));
         System.out.println(isOddCorrect(2));
         System.out.println(isOddCorrect(3));

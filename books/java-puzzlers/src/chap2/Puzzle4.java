@@ -9,12 +9,12 @@ public class Puzzle4 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         System.out.println(12345 + 5432l);
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         System.out.println(12345 + 5432L);
     }
 }

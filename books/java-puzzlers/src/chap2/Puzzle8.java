@@ -9,7 +9,7 @@ public class Puzzle8 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         char x = 'X';
         int i = 0;
         System.out.println(true ? x : 0);
@@ -17,7 +17,7 @@ public class Puzzle8 extends AbstractPuzzle {
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
         char x = 'X';
         char i = '0';
         System.out.println(true ? x : 0);

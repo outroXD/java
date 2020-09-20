@@ -6,10 +6,10 @@ import common.PuzzlesFactory;
 import java.util.ArrayList;
 
 public class Main {
-    private static final ChapterEnum targetChap = ChapterEnum.ChapTwo;
+    private static final ChapterEnum chapter = ChapterEnum.ChapTwo;
 
     public static void main(String[] args) {
-        ArrayList<IPuzzle> puzzles = new PuzzlesFactory().getPuzzles(targetChap);
+        ArrayList<IPuzzle> puzzles = new PuzzlesFactory().getPuzzlesByChapter(chapter);
         for (IPuzzle puzzle : puzzles) {
             puzzle.exec();
         }

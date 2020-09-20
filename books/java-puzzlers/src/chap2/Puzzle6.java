@@ -8,11 +8,11 @@ public class Puzzle6 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
         System.out.println((int) (char) (byte) -1);
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
     }
 }

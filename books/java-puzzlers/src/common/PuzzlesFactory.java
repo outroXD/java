@@ -16,7 +16,7 @@ public class PuzzlesFactory {
                 new Puzzle6(), new Puzzle7(), new Puzzle8(), new Puzzle9(), new Puzzle10())));
     }
 
-    public ArrayList<IPuzzle> getPuzzles(ChapterEnum key) {
-        return this.puzzles.get(key);
+    public ArrayList<IPuzzle> getPuzzlesByChapter(ChapterEnum chapter) {
+        return this.puzzles.get(chapter);
     }
 }

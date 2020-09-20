@@ -9,12 +9,12 @@ public class Puzzle10 extends AbstractPuzzle {
     }
 
     @Override
-    public void getExample() {
+    public void showExample() {
 
     }
 
     @Override
-    public void getCorrect() {
+    public void showCorrect() {
 
     }
 }
