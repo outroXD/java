@@ -17,7 +17,8 @@ public class PuzzlesFactory {
                 new Puzzle6(), new Puzzle7(), new Puzzle8(), new Puzzle9(), new Puzzle10())));
         puzzles.put(Chapter.Three, new ArrayList<IPuzzle>(Arrays.asList(
                 new Puzzle11(), new Puzzle12(), new Puzzle13(), new Puzzle14(), new Puzzle15(),
-                new Puzzle16(), new Puzzle17(), new Puzzle18(), new Puzzle19(), new Puzzle20())));
+                new Puzzle16(), new Puzzle17(), new Puzzle18(), new Puzzle19(), new Puzzle20(),
+                new Puzzle21(), new Puzzle22(), new Puzzle23())));
     }
 
     public ArrayList<IPuzzle> getPuzzlesByChapter(Chapter chapter) {
