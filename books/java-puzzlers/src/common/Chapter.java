@@ -10,4 +10,8 @@ public enum Chapter {
     Chapter(int chapter) {
         this.chapter = chapter;
     }
+
+    public int getValue() {
+        return this.chapter;
+    }
 }
