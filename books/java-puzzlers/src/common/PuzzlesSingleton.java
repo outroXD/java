@@ -1,37 +1,57 @@
 package common;
 
-import chap2.*;
-import chap3.*;
-import chap4.Puzzle24;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.util.*;
 
 public class PuzzlesSingleton {
 
     // TODO puzzlesより先にsingletonを記述すると実行時エラー 順序に依存している。
-    private static final Map<Chapter, ArrayList<IPuzzle>> puzzles = new HashMap<>();
+    private static final Map<Chapter, List<? extends AbstractPuzzle>> puzzles = new HashMap<>();
     private static final PuzzlesSingleton singleton = new PuzzlesSingleton();
 
+    private static final String CHAPTER_PACKAGE_SUFFIX = "chap";
+    private static final String CLASS_SUFFIX = ".class";
+
     private PuzzlesSingleton() {
-        puzzles.put(Chapter.Two, new ArrayList<>(Arrays.asList(
-                new Puzzle1(), new Puzzle2(), new Puzzle3(), new Puzzle4(), new Puzzle5(),
-                new Puzzle6(), new Puzzle7(), new Puzzle8(), new Puzzle9(), new Puzzle10())));
-        puzzles.put(Chapter.Three, new ArrayList<>(Arrays.asList(
-                new Puzzle11(), new Puzzle12(), new Puzzle13(), new Puzzle14(), new Puzzle15(),
-                new Puzzle16(), new Puzzle17(), new Puzzle18(), new Puzzle19(), new Puzzle20(),
-                new Puzzle21(), new Puzzle22(), new Puzzle23())));
-        puzzles.put(Chapter.Four, new ArrayList<>(Arrays.asList(
-                new Puzzle24())));
+        for (Chapter chapter : Chapter.values()) {
+            puzzles.put(chapter, getClasses(chapter));
+        }
+    }
+
+    private static <T extends AbstractPuzzle> List<T> getClasses(Chapter chapter) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final String resourceName = (CHAPTER_PACKAGE_SUFFIX + chapter.getValue()).replace('.', '/');
+        List<T> classes = new ArrayList<>();
+        try {
+            Enumeration<URL> enumeration = classLoader.getResources(resourceName);
+            while (enumeration.hasMoreElements()) {
+                URL url = enumeration.nextElement();
+                File dir = new File(url.getPath());
+                for (String path : Objects.requireNonNull(dir.list())) {
+                    if (path.endsWith(CLASS_SUFFIX) && isAnonymousClass(path)) {
+                        String classPackageName = CHAPTER_PACKAGE_SUFFIX + chapter.getValue() + "." + path.substring(0, path.length() - 6);
+                        T puzzle = (T) Class.forName(classPackageName).getDeclaredConstructor().newInstance();
+                        classes.add(puzzle);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return classes;
+    }
+
+    private static boolean isAnonymousClass(String path) {
+        return !path.contains("$");
     }
 
     public static PuzzlesSingleton getInstance() {
         return singleton;
     }
 
-    public static ArrayList<IPuzzle> getPuzzlesByChapter(Chapter chapter) {
+    public static List<? extends IPuzzle> getPuzzlesByChapter(Chapter chapter) {
         return puzzles.get(chapter);
     }
 }

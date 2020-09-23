@@ -1,14 +1,14 @@
+import common.AbstractPuzzle;
 import common.Chapter;
 import common.IPuzzle;
 import common.PuzzlesSingleton;
-
-import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     private static final Chapter chapter = Chapter.Four;
 
     public static void main(String[] args) {
-        ArrayList<IPuzzle> puzzles = PuzzlesSingleton.getPuzzlesByChapter(chapter);
+        List<AbstractPuzzle> puzzles = (List<AbstractPuzzle>) PuzzlesSingleton.getPuzzlesByChapter(chapter);
         for (IPuzzle puzzle : puzzles) {
             puzzle.exec();
         }
