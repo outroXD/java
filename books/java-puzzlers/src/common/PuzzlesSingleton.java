@@ -37,11 +37,9 @@ public class PuzzlesSingleton {
                 URL url = enumeration.nextElement();
                 ArrayList<File> puzzleFiles = getSortedClassFiles(url.getPath());
                 for (File puzzleFile : puzzleFiles) {
-                    if (puzzleFile.getName().endsWith(CLASS_SUFFIX)) {
-                        String classPackageName = CHAPTER_PACKAGE_SUFFIX + chapter.getValue() + QUOTE + puzzleFile.getName().split(Pattern.quote(QUOTE))[0];
-                        T puzzleClass = (T) Class.forName(classPackageName).getDeclaredConstructor().newInstance();
-                        classes.add(puzzleClass);
-                    }
+                    String classPackageName = getPackageName(chapter, puzzleFile);
+                    T puzzleClass = (T) Class.forName(classPackageName).getDeclaredConstructor().newInstance();
+                    classes.add(puzzleClass);
                 }
             }
         } catch (Exception e) {
@@ -53,7 +51,6 @@ public class PuzzlesSingleton {
     private static ArrayList<File> getSortedClassFiles(String rootPath) {
         File rootDir = new File(rootPath);
         ArrayList<File> puzzleFiles = getFilteredFiles(rootDir);
-
         assert puzzleFiles != null;
         puzzleFiles.sort(new Comparator<File>() {
             @Override
@@ -69,12 +66,16 @@ public class PuzzlesSingleton {
     private static ArrayList<File> getFilteredFiles(File rootDir) {
         ArrayList<File> ret = new ArrayList<>();
         for (File file : Objects.requireNonNull(rootDir.listFiles())) {
-            if (isAnonymousClass(file)) {
+            if (isClass(file) && isAnonymousClass(file)) {
                 continue;
             }
             ret.add(file);
         }
         return ret;
+    }
+
+    private static boolean isClass(File file) {
+        return file.getName().endsWith(CLASS_SUFFIX);
     }
 
     private static boolean isAnonymousClass(File file) {
@@ -84,6 +85,10 @@ public class PuzzlesSingleton {
     private static int getPuzzleNumberByClassName(String className) {
         String name = className.split(Pattern.quote(QUOTE))[0];
         return Integer.parseInt(name.substring(6));
+    }
+
+    private static String getPackageName(Chapter chapter, File puzzleFile) {
+        return CHAPTER_PACKAGE_SUFFIX + chapter.getValue() + QUOTE + puzzleFile.getName().split(Pattern.quote(QUOTE))[0];
     }
 
     public static List<? extends IPuzzle> getPuzzlesByChapter(Chapter chapter) {
