@@ -5,7 +5,7 @@ import common.PuzzlesSingleton;
 import java.util.List;
 
 public class Main {
-    private static final Chapter chapter = Chapter.Four;
+    private static final Chapter chapter = Chapter.Five;
 
     public static void main(String[] args) {
         List<AbstractPuzzle> puzzles = (List<AbstractPuzzle>) PuzzlesSingleton.getPuzzlesByChapter(chapter);
