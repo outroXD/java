@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public class PuzzlesSingleton {
 
-    // TODO puzzlesより先にsingletonを記述すると実行時エラー 順序に依存している。
+    // !!クラス初期化子の循環あり!!
+    // コンストラクタ内の処理ではpuzzlesを使用しているので、先にpuzzlesを初期化すること。
     private static final Map<Chapter, List<? extends AbstractPuzzle>> puzzles = new HashMap<>();
     private static final PuzzlesSingleton singleton = new PuzzlesSingleton();
 
