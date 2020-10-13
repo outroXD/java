@@ -1,7 +1,6 @@
 package common;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -14,6 +13,7 @@ public class PuzzlesSingleton {
 
     private static final String CHAPTER_PACKAGE_SUFFIX = "chap";
     private static final String CLASS_SUFFIX = ".class";
+    private static final String PUZZLE_PREFIX = "Puzzle";
     private static final String QUOTE = ".";
     private static final String DOLLAR = "$";
 
@@ -66,9 +66,9 @@ public class PuzzlesSingleton {
     private static ArrayList<File> getFilteredFiles(File rootDir) {
         ArrayList<File> ret = new ArrayList<>();
         for (File file : Objects.requireNonNull(rootDir.listFiles())) {
-            if (isClass(file) && isAnonymousClass(file)) {
-                continue;
-            }
+            if (!isClass(file)) continue;
+            if (isAnonymousClass(file)) continue;
+            if (!isPuzzleClass(file)) continue;
             ret.add(file);
         }
         return ret;
@@ -80,6 +80,10 @@ public class PuzzlesSingleton {
 
     private static boolean isAnonymousClass(File file) {
         return file.getName().contains(DOLLAR);
+    }
+
+    private static boolean isPuzzleClass(File file) {
+        return file.getName().startsWith(PUZZLE_PREFIX);
     }
 
     private static int getPuzzleNumberByClassName(String className) {
