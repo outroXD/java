@@ -174,3 +174,24 @@
 
 ## Puzzle 55
 * for, while, doループでブロックを省略したとき、その中でローカル変数宣言を行うことはできない。
+
+## Puzzle 56
+* BigInteger, Integer, Long, Short, Byte, Character, Boolean, Float, BigDecimalは`不変型`。
+* 不変型はインスタンスを変更しない。変更しない代わりに新しくインスタンスを作って返す。
+
+## Puzzle 57
+* equalsをオーバーライドしたら、hashCodeもオーバーライドすること。
+
+## Puzzle 58
+* equalsはObject型から継承される。
+* Object型から継承されるequalsは`equals(Object)`。
+  * なので、`equals(Name)`で実装しても影響しない。
+  
+## Puzzle 60
+* 0で始まる整数リテラルは、8進数として解釈される。
+
+## Puzzle 61
+* LinkedHashSet
+  * 順序を保った集合。
+* deepToString
+  * 多次元配列の中身を文字列にして表示する。
