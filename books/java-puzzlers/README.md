@@ -187,11 +187,25 @@
 * Object型から継承されるequalsは`equals(Object)`。
   * なので、`equals(Name)`で実装しても影響しない。
   
-## Puzzle 60
+## Puzzle 59
 * 0で始まる整数リテラルは、8進数として解釈される。
 
-## Puzzle 61
+## Puzzle 60
 * LinkedHashSet
   * 順序を保った集合。
 * deepToString
   * 多次元配列の中身を文字列にして表示する。
+
+## Puzzle 61
+* CalendarクラスのDateは1月を0で表す。
+
+## Puzzle 62
+* 文字列定数はインターンされる。
+  * 等価な文字列定数は、「同一」である。
+
+## Puzzle 65
+* compareの中の差分計算処理が「型の範囲」を超える場合にオーバーフローして正しく動作しない。
+* 比較は`推移的`である必要がある。
+  * `(compare(x, y) > 0) && (compare(y, z) > 0)`ならば`compare(x, z) > 0`
+* 順序を逆順にする場合は、`Arrays.sort(arr, Collections.reverseOrder())`を使うのが楽。
+* 2つの値の差が絶対にInteger.MAX_VALUEより大きくならないことを約束できないのであれば、引き算に基づく計算をしない。
