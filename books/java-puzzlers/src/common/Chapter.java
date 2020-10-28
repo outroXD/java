@@ -6,7 +6,8 @@ public enum Chapter {
     Four(4),
     Five(5),
     Six(6),
-    Seven(7);
+    Seven(7),
+    Eight(8);
 
     private int chapter;
 
