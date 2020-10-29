@@ -2,9 +2,9 @@ package chap8;
 
 import common.AbstractPuzzle;
 
-public class Puzzle70 extends AbstractPuzzle {
+public class Puzzle73 extends AbstractPuzzle {
 
-    public Puzzle70() {
+    public Puzzle73() {
         super(new Object(){}.getClass().getEnclosingClass().getName());
     }
 
