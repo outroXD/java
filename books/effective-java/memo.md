@@ -539,7 +539,7 @@ class Outer {
   * 実行時にClassCastExceptionが発生する恐れがある。
     * パラメータ化された型を使用すれば、コンパイル時にその誤りに気づくことができる。
 ### `List`と`List<Object>`の違い
-* `List`はジェネリック型検査が行われない一方、後者はコンパイラに対して明示的に「どんなオブジェクトでも保持できること」を伝えている。
+* `List`は「ジェネリック型検査が行われない」一方、後者はコンパイラに対して明示的に「どんなオブジェクトでも保持できること」を伝えている。
 * `List`は型安全性を失うが、`List<Object>`などのパラメータ化された型を使えば型安全性を失わない。
 * 型安全性
   * 型のミスマッチがある = オブジェクトに対する不正な操作の可能性がある ことをコンパイル時に発見できること。
@@ -560,9 +560,195 @@ interface InterfaceName <T> {
 * `原型`
   * `List`のような型パラメータを伴わない宣言。
 
+## 項目27 無検査警告を取り除く
+* ジェネリクスを使用してコーディングすると、`無検査警告`が出ることがある。
+  * 無検査警告って何？
+  * ジェネリクスは実行時に型の情報を持っていないので、型情報を使った検査を行わない。
+    * 例えば型パラメータを使って配列を実装するケース
+      * 配列は逆に実行時に型情報を持っており、検査したいが、ジェネリクスの仕様により情報がなく検査できない → `無検査警告`を出力。
+      * キャストがチェックされない(= ジェネリクス = キャスト??)
+      * 実装者がキャストチェックがなくても安全であることを保証しなくてはならない？
+```java
+static <E> E reduce(List<E> list, Function<E> f, E initVal) {
+  E[] snapshot = (E[]) list.toArray(); // リストを内部的にロック
+  E result = initVal;
+  for (E e : snapshot)
+    result = f.apply(result, e);
+  return result;
+}
+```
+
+## 項目28 配列よりもリストを選ぶ
+* 歴史的経緯により、配列とジェネリクスは異なる性質を持つ。
+* 2つを合わせて使うと問題が起きる。
+### 配列の特徴
+* `共変`
+  * `Object[] objectArr = new Long[1];`では`Long[]`は`Object[]`のサブタイプとして扱われる。
+* `具象化されている`
+  * 配列は実行時にどんな型を格納できるか知っているので、不適切な型のオブジェクトを代入しようとすると実行時エラーが起きる。
+### ジェネリクスの特徴
+* `不変`
+  * `List<Object> objList = new ArrayList<Long>();`では、`ArrayList<Long>`は`List<Object>`のサブタイプとして扱われない。
+* `イレイジャで実装されている`
+  * コンパイル時にのみ型制約を強制し、実行時に要素の型情報を破棄する。  
+
+## 項目29 ジェネリック型を使う
+* 以下のような状況ではジェネリックを利用する良い機会。
+  * 利用者がメソッドからの戻り値をキャストする必要がある。
+  * 利用者が実行時にキャストが失敗する可能性がある。
+
+## 項目30 ジェネリックメソッドを使う
+* 型パラメータの宣言はメソッド修飾子と返り値型の間で宣言する。
+* rawタイプなメソッドの書き方は推奨されない。ジェネリクスを使ったメソッド定義が推奨される。
+```java
+public static <E> Set<E> union(Set<E> s1, Set<E> s2) {
+    Set<E> result = new HashSet<>(s2);
+    result.addAll(s2);
+    return result;
+}
+```
+```java
+public static Set union(Set s1, Set s2) {
+    Set result = new HashSet(s1);
+    result.addAll(s2);
+    return result;
+}
+```
+
+https://stackoverflow.com/questions/53337494/how-does-casting-this-object-to-a-generic-type-work
 
 
-## まとめ
+# Javaの型変換
+## アップキャスト
+* スーパークラス(親クラス)からサブクラス(子クラス)への変換。
+* 子クラスは親クラスを継承しているので、親クラスの型としてインスタンスを代入することができる。
+
+```java
+Cat cat = new Cat();
+Animal animal = cat;
+```
+## ダウンキャスト
+* サブクラスからスーパークラスへの変換。
+* 親クラスは子クラス特有のメソッドやフィールドを持っていないため、コンパイルエラーになる。
+* ダウンキャストを行うときは、親クラスの実態(インスタンス)が子クラスから生成されていないとできない。
+
+```java
+Animal animal = new Cat();
+Cat cat = animal;
+```
+## ジェネリクス型
+* 型パラメータ部分にジェネリクスを使うと、コンパイル時に検査してエラーを出してくれるようになる。
+* 型パラメータ部分はインスタンス生成時に決めることができる。
+
+```java
+public class Generic<T> {
+    private T value;
+
+    public void setValue(T val) {
+        value = val;
+    }
+
+    public T getValue() {
+        return value;
+    }
+}
+
+Generic generic = new Generic<Integer>(); // インスタンス作成時に型を指定
+```
+
+## 非境界ワイルドカード型
+* 要素の型が「何でも構わない」場合、非境界ワイルドカード型を使う。
+* 非境界ワイルドカード型は型パラメータに`?`を指定する。
+* 返り値に非境界ワイルドカード型が指定されている場合、返り値の型が事前にわからないため、受ける側はObject型で受ける事になる。
+
+```java
+Generic<?> generic = new Generic<Integer>();
+generic.setValue(null);
+Object value = generic.getValue();
+```
+
+## ジェネリクス型の継承関係
+Cat, DogはAnimalの子クラスであるとする。  
+List<Animals>の要素として、Cat, Dogを格納することができる。  
+
+```java
+List<Animal> animals = new ArrayList<Animal>();
+animals.add(new Animal());
+animals.add(new Cat());
+animals.add(new Human());
+```
+
+`List<Animal>`と`List<Cat>`を考える。  
+`List<Animal>`へ`List<Cat>`は代入できない。(コンパイルエラー)  
+Javaではクラスに継承関係にあったとしても、別の型として扱われるから。  
+これを`不変`という。  
+
+`List<Animal>`へ`List<Cat>`は代入できることを`共変`という。  
+`List<Cat>`へ`List<Animal>`を代入できることを`反変`という。  
+
+## 共変性
+ジェネリクスが共変性を持つと仮定して考える。  
+`List<Cat>`が`List<Animal>`のサブタイプである場合、ジェネリクスは共変である。  
+
+共変の定義より、以下のようなソースを書ける事になる。  
+```java
+List<Animal> animals = new ArrayList<Cat>();
+```
+
+`animals`より「要素を取り出す」ことを考える。  
+`List<Animal>`より取得できる可能性のある型は`Animal`,`Cat`,`Dog`である。  
+これらは`Animal`型へキャスト可能なので問題ない。  
+
+`animals`へ「要素をいれる」ことを考える。  
+ダウンキャストのルールより、親クラスへキャストする際、実態は`Animal`である必要がある。  
+また、下記例だと`List<Animal>`の実態が`List<Cat>`の場合で、CatのリストにHumanが入る事になる。  
+これは型安全を放棄している。  このようなソースを書いた時、コンパイル時エラーとしたい。
+```java
+List<Cat> cats = new ArrayList<Cat>();
+cats.add(new Cat());
+List<Animal> animals1 = cats;
+
+List<Human> humans = new ArrayList<Human>();
+humans.add(new Human());
+List<Animal> animals2 = human;
+
+Animal animal1 = animals1.get(0) // Catのインスタンスが取り出せる
+Animal animal2 = animals2.get(0) // Humanのインスタンスが取り出せる
+```
+
+## 上限境界ワイルドカード型
+* 要素の型に「共変性の継承関係による縛り」を加えて指定する場合、上限境界ワイルドカード型を使う。
+* ジェネリクスに共変性を持たせるには`List<? extends Animal>`のように指定する。
+  * 型パラメータは「Animalを親クラスに持つクラス」という意味。
+* ジェネリクスに共変性を持たせるための仕組み。上限境界ワイルドカード型があれば、型安全性を保ったまま共変性を導入できる。
+```java
+List<? extends Animal> animals = new ArrayList<Animal>();
+animals.add(new Animal()); // コンパイルエラー
+animals.add(new Cat()); // コンパイルエラー
+animals.add(new Human()); // コンパイルエラー
+animals.add(null); // nullのみ代入可
+```
+
+## 反変性
+ジェネリクスが反変性を持つと仮定する。  
+反変性の定義より、以下のような操作ができる。  
+```java
+List<Cat> cats = new ArrayList<Animal>();
+```
+
+上記定義において、`List<Cat>`の実態は`List<Animal>`である。  
+要素として、`Animal`, `Cat`を追加できる。  
+
+一方、`List<Animal>`に追加できる要素は`Animal`,`Cat`,`Human`である。  
+`List<Cat>`のサブクラスは`List<Animal>`(反変)なので、`List<Animal>`を`List<Cat>`へキャストできる。  
+しかし`List<Animal>`は要素に`Human`型を持てるので、そのようなソースを書いた場合コンパイル時エラーとしたい。  
+
+## 下限境界ワイルドカード型
+* 要素の型に「反変性の継承関係による縛り」を加えて指定する場合、下限境界ワイルドカード型を使う。
+* ジェネリクスに反変性を持たせるには`List<? super Animal>`のように指定する。
+  * 型パラメータは「Animalをサブクラスに持つクラス」という意味。
+
+# まとめ
 ### テクニック
 * スコープやメモリリークに対するテクニック
   * 通常/static/非static/無名クラスの使い分け。
