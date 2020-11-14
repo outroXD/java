@@ -617,6 +617,187 @@ public static Set union(Set s1, Set s2) {
 
 https://stackoverflow.com/questions/53337494/how-does-casting-this-object-to-a-generic-type-work
 
+## 項目31 APIの柔軟性向上のために境界ワイルドカードを使う
+### ユーザーから見た使いやすいAPIとは
+StackというクラスがAPIとして公開され、それを利用する状況を考える。  
+```java
+Stack<Number> numberStack = new Stack<>();
+Iterable<Integer> integers = ... ;
+
+// IntegerはNumberのサブタイプなので、直感的にはこのように使えそうな気がしませんか？
+numberStack.pushAll(integers);
+```
+利用者はAPIにオブジェクトを提供する場合、「より具体的な型」のオブジェクトを渡しても動くことを想定する。  
+「より具体的」とはInteger型はStack型のサブクラスであるということ。  
+
+別のケースとしては下記。  
+```java
+Stack<Number> numberStack = new Stack<>();
+Collection<Object> objectsHolder = ... ;
+
+// ObjectはNumberのスーパータイプなので、直感的にはこのように使えそうな気がしませんか？
+numberStack.popAll(objectsHolder);
+```
+Number型はObject型のサブクラスなので上記のような渡し方を期待する。  
+### APIに柔軟性を持たせる
+#### ケース1
+上記のような渡し方を実現するには、APIを次のように実装する。  
+```java
+public <E> void pushAll(Iterable<? extends E> src) {
+    ...
+}
+```
+利用者の「APIの引数としてオブジェクトを渡す場合、より具体的な型を渡しても動作する」という期待に答える作りにするためには、  
+API側の型は「EのIterable」と考えるのではなく、「Eそのもの、またはEのサブタイプのIterable」と考える必要がある。  
+
+パラメータがAPIにオブジェクトを提供する場合、そのパラメータはproducerであるという。
+#### ケース2
+```java
+Stack<Number> numberStack = new Stack<>();
+Collection<Object> objectsHolder = ... ;
+
+// ObjectはNumberのスーパータイプなので、直感的にはこのように使えそうな気がしませんか？
+numberStack.popAll(objectsHolder);
+```
+利用者は「APIからオブジェクトを受け取る側なら、より抽象的な型のオブジェクトとして受け取れるだろう」と考える。(ケース1の逆)  
+API側の型は「EのCollection」ではなく、「Eそのもの、またはEのスーパータイプのCollection」とする。
+
+パラメータがAPIからオブジエクトを受け取る場合、そのパラメータはconsumerであるという。
+```java
+// ポイントは、<? super E>　の部分です。ロジック部分は省略。
+public <E> void popAll(Collection<? super E> dst) {
+    ...
+}
+```
+### APIをジェネリクスで使う時のポイント
+#### 戻り値の型に境界ワイルドカードを使わない。
+
+
+## 項目32 ジェネリクスと可変長引数を注意して組み合わせる
+* 可変長パラメータがジェネリック型か、パラメータ化された型である場合、コンパイラは警告を出す。
+* `ヒープ汚染`とはパラメータ化された型の変数が、その型ではないオブジェクトを参照しているとき発生する。
+* `@SafeVarargs`アノテーションで警告を出さないようにできるが、型安全性を保証すること。
+
+
+* Javaでは可変長パラメータを渡すと、その保持の為にジェネリック配列が生成される。
+* 以下の条件を満たす場合、ジェネリック可変長引数メソッドは安全と言える。
+  * 可変長パラメータ配列に何も保存していない。かつ、
+  * 信頼できないコードに対してその配列(あるいは複製を)参照できるようにしていない。
+* 上記条件を満たせば`@SafeVarargs`を付与して良いが。
+  * オーバーライドできないメソッドに対して付与できる。
+  * Java8ではstaticメソッド、finalのインスタンスメソットにのみ付与できる。
+  * Java9ではprivateのインスタンスメソッドにも付与できる。
+* `@SafeVarargs`以外の方法：可変長パラメータをリストで置き換える。
+  *  
+
+# インターフェースメモ
+## Iterable
+* `hasNext`
+  * 次の要素の有無を判定。
+* `next`
+  * 次の要素を返却。
+
+
+# 6章 enumとアノテーション
+## 項目34 int定数の代わりにenumを使う
+### int enumパターンを避ける
+```java
+public static final int APPLE_FUJI   = 0;
+public static final int APPLE_PIPPIN = 1;
+```
+* int enumパターンは型安全性を提供しない。
+* 変数名がAPPLE_で始まっているのは、名前空間を提供していないから。
+* toStringなどでコンソール表示してもintの値が出力されるだけで、有用な結果を得られない。
+* 定数をまとまりにして、イテレートしたりできない。
+### enum型
+上記のような問題点を避ける為にenum型が提供されている。  
+
+```java
+public enum Apple {FUJI, PIPPIN}
+```
+* enum型はシングルトンクラス。
+* enum定数にデータを関連付ける為に、インスタンスフィールドを宣言して、データを受け取るコンストラクタを書いて、そのフィールドにデータを保存する。
+* クラス内やパッケージ内からだけアクセスされるenumはprivateあるいはパッケージprivateとして宣言する。
+* enumのフィールド内では定数だけでなく、メソッドも紐付けることができる。
+* enumで宣言した型は、自動的にjava.lang.Enumを継承する。
+  * Objectクラスのequals, hashCOdeが適切に実装されている。
+  * Comparableを実装している。
+  * Serializableを実装している。
+```java
+// 定義
+public enum Planet {
+    MERCURY(3.302e+23, 2.439e6),
+    
+    private final double mass;
+    private final double radious;
+    private final double surfaceGravity;
+
+    Planet(double mass, double radious) {
+        this.mass = mass;
+        this.radious = radious;
+        this.surfaceGravity = G * mass / (radious * radious);
+    }
+}
+```
+### メソッドを紐付ける
+```java
+public enum Operation {
+    PLUS {public double aplly(double x, double y) {return x + y;}}
+    
+    public abstract double apply(double x, double y);
+}
+```
+* enum型で抽象applyメソc都度を宣言する。
+* 定数固有クラス本体で、定数毎にその抽象メソッドを具象メソッドでオーバーライドする。
+### 定数の名前を値に変換
+* `valueOf(String)`
+* `values`
+### 戦略enumパターン
+* enumに新たな要素を追加した時、switch文へ追加した要素の為の分岐を忘れたとすると、追加した要素に対して既存のメソッドが意図しない計算結果を出すかもしれない。
+* enum定数を追加する毎に、switch文の処理に対応する処理(戦略)を追加することを強制するパターン。
+* 下記例のように、要素の追加は同時にPayTypeの選択を含むので、上記のような懸念がない。
+```java
+enum PayrollDay {
+    MONDAY(PayType.WEEKDAY),
+    TUESDAY(PayType.WEEKDAY),
+    WEDNESDAY(PayType.WEEKDAY),
+    THURSDAY(PayType.WEEKDAY),
+    FRIDAY(PayType.WEEKDAY),
+    SATURDAY(PayType.WEEKEND),
+    SUNDAY(PayType.WEEKEND);
+
+    private final PayType payType;
+
+    PayrollDay(PayType payType) {
+        this.payType = payType;
+    }
+
+    int pay(int minutesWorked, int payRate) {
+        return payType.pay(minutesWorked, payRate);
+    }
+
+    private enum PayType {
+        WEEKDAY {
+            int overtimePay(int minsWorked, int payRate) {
+                return minsWorked <= MINS_PER_SHIFT ? 0 : (minsWorked - MINS_PER_SHIFT) * payRate / 2;
+            }
+        },
+        WEEKEND {
+            int overtimePay(int minsWorked, int payRate) {
+                return minsWorked * payRate / 2;
+            }
+        };
+        abstract int overtimePay(int mins, int payRate);
+        private static final int MINS_PER_SHIFT = 8 * 60;
+
+        int pay(int minsWorked, int payRate) {
+            int basePay = minsWorked * payRate;
+            return basePay + overtimePay(minsWorked, payRate);
+        }
+    }
+}
+```
+
 
 # Javaの型変換
 ## アップキャスト
