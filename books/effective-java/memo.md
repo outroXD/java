@@ -799,6 +799,78 @@ enum PayrollDay {
 ```
 
 
+# 7章 ラムダとストリーム
+## 項目42 無名クラスよりもラムダを選ぶ
+### 関数型インターフェース
+* 抽象メソッドが1つだけ定義されているインターフェースのこと。
+* ただし、defaultやstaticメソッド、Objectクラスにあるpublicメソッドはカウントしない。
+
+以下、関数型インターフェースの例.
+```java
+public interface GreetingInterface {
+    public abstract String sayHello(String name);
+}
+```
+インターフェースは普通ならimplementsして使用する。  
+別な使い方として、ローカルクラスの省略記法で呼び出し側で実装しながらコールすることもできる。  
+```java
+public class Greeting {
+    public static void main(String[] args) {
+        String friendName = "John";
+        GreetingInterface greet = new GreetingInterface() {
+            @Override
+            public String sayHello(String name) {
+                return "Hello, " + name + "!";
+            }
+        };
+        System.out.println(greet.sayHello(friendName)); // Hello, John!  
+    }
+}
+```
+この考え方をさらに推し進めて、関数型インターフェースの表記方法を使用することで、記述量を減らすことができる。  
+関数型インターフェースの表記方法で呼び出すには、以下の条件を満たしている必要がある。
+1. 抽象メソッドが1つだけ定義されているインターフェイスであること。ただしdefaultやstaticメソッド、Objectクラスにあるpublicメソッドはカウントしない。
+2. 条件(1)を満たしている上で、`@FunctionalInterface`が付与されていること。(付与されていなくても条件(1)を満たしていればOK)
+
+```java
+public class Greeting {
+    public static void main(String[] args) {
+        String friendName = "John";
+        GreetingInterface greet = name -> {
+            return "Hello, " + name + "!";
+        };
+        System.out.println(greet.sayHello(friendName));  // Hello, John!
+    }
+}
+``` 
+* インターフェースの引数定義に引数の型は定義されているので、関数型インターフェースの表記では引数の型を記述する必要はない。
+* ラムダ式も上記議論と同様で、ラムダ式も条件(1)の定義である。
+  * 無名クラスをimplementsした呼び出し側のコード量が増えてしまう為、これらの記述量を減らす構文が導入された。
+* 関数型インターフェースの定義にのらない型のインスタンスを作成する必要がある時だけ、関数オブジェクトとして無名クラスを使う。
+* ラムダにおけるthisはエンクロージングインスタンスを、無名クラスにおけるthisは無名クラスのインスタンスを指す。
+
+## 項目43 ラムダよりメソッド参照を選ぶ
+* ラムダ式を使う場合、引数名を書く必要がある。引数名を明示的に記述した方がわかりやすい場合、ラムダ式を選ぶ。
+* ラムダ式を使う場合、ロジックも呼び出し側で記述する。ロジックの記述があった方が読みやすい場合、ラムダ式を選ぶ。
+* ラムダ式に書くロジックをメソッドに抽出し、そのメソッド参照を使うという選択肢もある。ドキュメントも書ける。
+* 基本的にはラムダ式よりも、メソッド参照を使った方が簡潔な実装をできる。
+### メソッド参照
+|  メソッド参照の種類  |  例  | 同等のラムダ | 補足 |
+| ---- | ---- | ---- | ---- |
+|  static  |  Integer::parseInt  |  str -> Integer.parseInt(str) | static参照を使ってstrに処置を加える |
+|  バウンド  |  Instant.now()::isAfter  | Instant then = Instant.now(); t -> then.isAfter(t) | |
+| アンバウンド | String::toLowerCase | str -> str.LowerCase() | 引数の型から参照できるメソッドを実行する | |
+| クラスコンストラクタ | TreeMap<K,V>::new | () -> new TreeMap<K,V> | |
+| 配列コンストラクタ | int[]::new | len -> new int[len] | |
+
+## 項目44 標準の関数型インターフェースを使う
+* 基本メソッドをオーバーライドするテンプレートメソッドパターンは、関数オブジェクトを受け取るstaticファクトリかコンストラクタを提供する方法に変わっている。
+* 推奨される？インターフェースの作り
+  * 引数を関数オブジェクトで定義
+    * 関数オブジェクトで定義することで、返却される値の型がわかる。
+    * 引数の値を使ってどのような処理をするかは、APIの呼び出し側でラムダ式で定義する。
+    * ここで引数に設定される関数オブジェエクトは標準で色々用意されているっぽい。
+
 # Javaの型変換
 ## アップキャスト
 * スーパークラス(親クラス)からサブクラス(子クラス)への変換。

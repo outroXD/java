@@ -1,23 +1,33 @@
 import com.sun.nio.file.ExtendedOpenOption;
 
 import java.util.*;
+import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Stream;
 
 public class EnumSample {
     public static void main(String[] args) {
         // 37
         // Planetの要素をキーに、データ集合を紐付ける
+        System.out.println("=== 37 ===");
         Map<Planet.LifeCycle, Set<Planet>> planetsByLifeCycle = new EnumMap<>(Planet.LifeCycle.class);
         for (Planet.LifeCycle lc : Planet.LifeCycle.values())
             planetsByLifeCycle.put(lc, new HashSet<>());
         System.out.println(planetsByLifeCycle);
 
         // 38
+        System.out.println("=== 38 ===");
         double x = Double.parseDouble("0.2");
         double y = Double.parseDouble("0.5");
         test(BasicOperation.class, x, y);
         test(ExtendedOperation.class, x, y);
         test(Arrays.asList(ExtendedOperation.values()), x, y);
+
+        // 42
+        System.out.println("=== 42 ===");
+        x = Double.parseDouble("0.2");
+        y = Double.parseDouble("0.5");
+        double ans1 = Operation42.PLUS.apply(x, y);
+        System.out.println(ans1);
     }
 
     static class Planet {
@@ -141,6 +151,33 @@ public class EnumSample {
     private static void test(Collection<? extends Operation> opSet, double x, double y) {
         for (Operation op : opSet) {
             System.out.printf("%f %s %f = %f%n", x, op, y, op.apply(x, y));
+        }
+    }
+
+    // 項目42
+    // enum型のフィールド毎に固有の振る舞いを持たせたパターン
+    // かつ、振る舞いをlambdaで定義した場合
+    public enum Operation42 {
+        PLUS ("+", (x, y) -> x + y),
+        MINUS ("-", (x, y) -> x - y),
+        TIMES ("*", (x, y) -> x * y),
+        DIVIDE("/", (x, y) -> x / y);
+
+        private final String symbol;
+        private final DoubleBinaryOperator op;
+
+        Operation42(String symbol, DoubleBinaryOperator op) {
+            this.symbol = symbol;
+            this.op = op;
+        }
+
+        @Override
+        public String toString() {
+            return symbol;
+        }
+
+        public double apply(double x, double y) {
+            return op.applyAsDouble(x, y);
         }
     }
 }
